@@ -1,7 +1,8 @@
+import argparse
 import numpy as np
 from plyfile import PlyData, PlyElement
 
-def convert_lidar_to_clean_splat(input_path, output_path):
+def convert_lidar_to_clean_splat(input_path, output_path, scale_multiplier=-5.0):
     print(f"Reading LiDAR data from {input_path}...")
     
     # Load the binary PLY
@@ -26,7 +27,7 @@ def convert_lidar_to_clean_splat(input_path, output_path):
     
     # Scale: -5.0 is standard. Lower (e.g. -6.0) for sharper points, 
     # higher (e.g. -4.0) for "fuzzier" filling of gaps.
-    scale = np.ones((num_pts, 3), dtype='f4') * -5
+    scale = np.ones((num_pts, 3), dtype='f4') * np.float32(scale_multiplier)
     
     # Rotation: Unit quaternion [1, 0, 0, 0] (no rotation)
     rot = np.zeros((num_pts, 4), dtype='f4')
@@ -60,5 +61,18 @@ def convert_lidar_to_clean_splat(input_path, output_path):
     
     print("Success! Your clean Gaussian Splat PLY is ready.")
 
-# Run the conversion
-convert_lidar_to_clean_splat("input.ply", "clean_splat.ply")
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+        description="Convert LiDAR PLY to clean Gaussian Splat PLY with adjustable scale multiplier."
+    )
+    parser.add_argument("input_path", help="Path to the input LiDAR PLY file")
+    parser.add_argument("output_path", help="Path to the output clean splat PLY file")
+    parser.add_argument(
+        "--scale",
+        type=float,
+        default=-5.0,
+        help="Scale multiplier for splats (default: -5)",
+    )
+
+    args = parser.parse_args()
+    convert_lidar_to_clean_splat(args.input_path, args.output_path, args.scale)
