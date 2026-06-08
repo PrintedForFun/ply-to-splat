@@ -1,2 +1,2 @@
-input.ply
-output.ply
+*.ply
+.venv/
