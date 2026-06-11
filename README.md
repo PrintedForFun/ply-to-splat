@@ -37,13 +37,13 @@ This repository is designed to avoid resource-intensive splat training when your
 
 ### Recommended: Included wrapper script
 
-This repository includes `prepare-and-splat.sh`, which simplifies the pipeline and applies a default `90,0,0` rotation during CloudCompare preprocessing.
+This repository includes `prepare-and-splat.sh` and `prepare-and-splat.ps1`, which simplify the pipeline and apply a default `90,0,0` rotation during CloudCompare preprocessing.
 
 - accepts input and output paths
 - runs `src/cloud-compare-prepare.py --rotate 90,0,0` to produce `tmp-mesh.ply`
 - runs `src/ply-to-splat.py` on `tmp-mesh.ply`
 
-Use `./prepare-and-splat.sh input.ply output-splat.ply` to run the full workflow with default rotation.
+Use `./prepare-and-splat.sh input.ply output-splat.ply` on macOS/Linux, or `.\prepare-and-splat.ps1 input.ply output-splat.ply` in PowerShell on Windows.
 
 ### Manual workflow
 
