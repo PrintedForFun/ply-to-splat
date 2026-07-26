@@ -12,6 +12,12 @@ This repository is designed to avoid resource-intensive splat training when your
   - ~10s preprocessing, denoising, and transformation of an 11M point cloud using CloudCompare CLI
   - ~2s to create the Gaussian splat from the processed point cloud
 
+## Scanner compatibility
+
+This workflow has been tested with scans from Share C1 and Share S20 devices. Because the pipeline uses CloudCompare as an intermediary step before the Python conversion script, it should also work with other LiDAR scans as long as they can be imported into CloudCompare and exported as a PLY point cloud.
+
+In practice, the main requirement is that the input is a valid PLY point cloud that CloudCompare can process. If your scan is exported in a different format first, it should be converted to PLY before running the pipeline. The conversion script itself is designed for the cleaned PLY output produced by the preprocessing step.
+
 ## Prerequisites
 
 - Python 3 with a virtual environment.
