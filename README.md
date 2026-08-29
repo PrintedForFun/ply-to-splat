@@ -14,7 +14,7 @@ This repository is designed to avoid resource-intensive splat training when your
 
 ## Scanner compatibility
 
-This workflow has been tested with scans from Share C1 and Share S20 devices. Because the pipeline uses CloudCompare as an intermediary step before the Python conversion script, it should also work with other LiDAR scans as long as they can be imported into CloudCompare and exported as a PLY point cloud.
+This workflow has been tested with scans from Share C1 and Share S20 devices as well as 3DMakerPro scanners. Because the pipeline uses CloudCompare as an intermediary step before the Python conversion script, it should also work with other LiDAR scans as long as they can be imported into CloudCompare and exported as a PLY point cloud.
 
 In practice, the main requirement is that the input is a valid PLY point cloud that CloudCompare can process. If your scan is exported in a different format first, it should be converted to PLY before running the pipeline. The conversion script itself is designed for the cleaned PLY output produced by the preprocessing step.
 
@@ -45,11 +45,35 @@ In practice, the main requirement is that the input is a valid PLY point cloud t
 
 This repository includes `prepare-and-splat.sh` and `prepare-and-splat.ps1`, which simplify the pipeline and apply a default `90,0,0` rotation during CloudCompare preprocessing.
 
-- accepts input and output paths
-- runs `src/cloud-compare-prepare.py --rotate 90,0,0` to produce `tmp-mesh.ply`
-- runs `src/ply-to-splat.py` on `tmp-mesh.ply`
+The wrappers will:
+- prompt for any missing values if you run them without arguments
+- also accept explicit CLI values for input, output, subsampling, and splat size
+- run `src/cloud-compare-prepare.py --ss <subsample> --rotate 90,0,0` to produce `tmp-mesh.ply`
+- run `src/ply-to-splat.py --scale <splat-size>` on the temp file
 
-Use `./prepare-and-splat.sh input.ply output-splat.ply` on macOS/Linux, or `.\prepare-and-splat.ps1 input.ply output-splat.ply` in PowerShell on Windows.
+The two most important tuning values are:
+- `subsample`: CloudCompare spatial step in world units. Smaller values keep more detail; larger values reduce point count and speed up processing. A good starting point is around `0.0075` for roughly 7.5 mm spacing.
+- `splat size` / `scale`: the Gaussian splat radius multiplier. A value around `-5` is the tested default and works well as a starting point. Higher magnitude (more positive) makes splats larger / more fuzzy; lower magnitude (more negative) makes them tighter / sharper.
+
+Examples:
+
+```bash
+# Interactive prompts
+./prepare-and-splat.sh
+
+# Direct CLI arguments
+./prepare-and-splat.sh input.ply output-splat.ply 0.0075 -5
+
+# Explicit named args
+./prepare-and-splat.sh --input input.ply --output output.ply --subsample 0.0075 --splat-size -5
+```
+
+PowerShell equivalent:
+
+```powershell
+./prepare-and-splat.ps1
+./prepare-and-splat.ps1 -InputFile '.\input.ply' -OutputFile '.\output-splat.ply' -Subsample 0.0075 -SplatSize -5
+```
 
 ### Manual workflow
 
@@ -59,7 +83,7 @@ Use `./prepare-and-splat.sh input.ply output-splat.ply` on macOS/Linux, or `.\pr
    ```
 2. Convert the cleaned point cloud to a Gaussian splat:
    ```bash
-   python3 src/ply-to-splat.py tmp-mesh.ply --scale '-5.5' output-splat.ply
+   python3 src/ply-to-splat.py --scale -5 tmp-mesh.ply output-splat.ply
    ```
 
 ## CloudCompare warning note
